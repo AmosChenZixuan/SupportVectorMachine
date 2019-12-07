@@ -21,8 +21,9 @@ class SVM:
     '''
     C-Support Vector Classifier
     References: 
+    Bhattacharyya, Saptashwa. “Principal Component Analysis and SVM in a Pipeline with Python.” Medium, Towards Data Science, 26 Sept. 2019, towardsdatascience.com/visualizing-support-vector-machine-decision-boundary-69e7591dacea.
     J. C. Platt. Fast training of support vector machines using sequential minimal optimization. 1998. MIT Press
-    P.-H. Chen, R.-E. Fan, and C.-J. Lin. A study on SMO-type decomposition methods for support vector machines.July 2006 https://www.csie.ntu.edu.tw/~cjlin/papers/generalSMO.pdf
+    P.-H. Chen, R.-E. Fan, and C.-J. Lin. A study on SMO-type decomposition methods for support vector machines.July 2006 https://www.csie.ntu.edu.tw/~cjlin/papers/generalSMO.pdf 
     '''
     def __init__(self, kernel, C = 1, k_max = 100, tol = 1e-3):
         '''
@@ -162,6 +163,7 @@ class SVM:
     def _best_j(self, i):
         '''
         Chen, Fan, and Lin. pg.3
+        J. C. Platt. Pg.48, (12.2.2)
         maximal violating pair:
         Find the best j such that |Ei - Ej| is the largest, that is:
         if Ei > 0, find the smallest Ej
@@ -238,6 +240,7 @@ class SVM:
         ax.scatter(X[:,0], X[:,1], c = Y, cmap=plt.cm.coolwarm, s = 50)
         
     def _plot_contours(self, ax):
+        '''Saptashwa Bhattacharyya'''
         xx, yy = self._meshgrid(self.X[:,0], self.X[:,1])
         Z = self.predict(np.c_[xx.ravel(), yy.ravel()])
         Z = np.asarray(Z).reshape(xx.shape)
@@ -248,7 +251,7 @@ class SVM:
             if alpha > 0:
                 ax.scatter(self.X[i, 0], self.X[i, 1], color='', edgecolors='k', marker='o', s=150)
     
-    def _meshgrid(self, x, y, space = 0.5, h=.05):
+    def _meshgrid(self, x, y, space = 0.5, h=.02):
         x_min, x_max = x.min() - space, x.max() + space
         y_min, y_max = y.min() - space, y.max() + space
         xx, yy = np.meshgrid(np.arange(x_min, x_max, h), np.arange(y_min, y_max, h))
