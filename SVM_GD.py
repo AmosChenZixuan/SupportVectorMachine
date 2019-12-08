@@ -21,6 +21,16 @@ class Kernel:
                     temp_mat=np.hstack((temp_mat,np.multiply(x[:,i],x[:,j])))
             return temp_mat
         return transform
+
+    def third_order(self):
+        def transform(x):
+            temp_mat=np.mat(x)
+            for i in range(x.shape[1]):
+                for j in range(i,x.shape[1]):
+                    for k in range(j,x.shape[1]):
+                        temp_mat=np.hstack((temp_mat,np.multiply(x[:,i],x[:,j],x[:,k])))
+            return temp_mat
+        return transform
     
     def rbf(self, x, y):
         return np.exp(-float(np.linalg.norm(x - y)) ** 2 / (2 * self.sigma ** 2))
@@ -141,7 +151,7 @@ class SVM_SGD:
 #                self.w+=(1/iters)*(-2)*self.w
             a,x=line_search(self.objective_function(),self.w,update)    
             self.w+=a*update
-        print(iter_num)
+        print("Number of iterations:",iter_num)
 
 #        svm_iter_num=0
 #        for iters in range(1,self.iterations/2+1):
@@ -156,7 +166,7 @@ class SVM_SGD:
                 
             
 #        print(self.X)
-        print(self.w)
+#        print(self.w)
 #        print(np.hstack(((self.X*self.w),self.Y)))
 #        #print(self.error)
 #        print(self.Y)
@@ -187,15 +197,34 @@ class SVM_SGD:
 
         plt.show()
         
+'''
+These codes attempts to optimize the primal problem of the SVM.
+The primal problem is:
 
-d= np.genfromtxt('nonlinear_data.txt')
+w = argmin(w)[(1/R)*w^2 + Sum( max(0, 1-y*(w*x+b)) )]
+
+Optimizing this problem helps us to find a decision boundary, (a hyperplane), which is represented by its weights on all the features.
+and said decision boundary shall make such correct decision as far to the data as possible.
+
+Gradient descent optimization method is applied to the primal problem
+in each iteration, the gradient with respect to w is used as the decesnt direction.
+the decsent direction, or the negative gradient is :
+
+d=-Grad(primal problem)=-R*w+x*y
+
+Then, according to this descent direction, a step size is chosen using bracketing and golden section search method.
+
+a=argmin(a)[primal problem(w+a*d)]
+
+
+w is then updated by: w+a*d.
+finally, after a sufficient number of update iterations, w is outputed to be the final answer of the primal problem.
+'''
+
+d= np.genfromtxt('nonlinear_data.txt')#Name of the data file
 X,Y=d[:,:2],d[:,-1]
 
-#print(Kernel().quadratic()(np.mat(X)))
-
-
-svm_sgd=SVM_SGD(1000)
-svm_sgd.fit(X,Y,Kernel().quadratic())
-print("Error:",svm_sgd.error(X,Y))
-
-svm_sgd.plot()
+svm_sgd=SVM_SGD(1000)#number of iterations to perform
+svm_sgd.fit(X,Y,Kernel().quadratic())#apply a fit, under a kernel
+print("Error:",svm_sgd.error(X,Y))#print the error
+svm_sgd.plot()#plot the data and decision boundary
