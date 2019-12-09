@@ -22,18 +22,10 @@ class Kernel:
             return temp_mat
         return transform
 
-    def third_order(self):
-        def transform(x):
-            temp_mat=np.mat(x)
-            for i in range(x.shape[1]):
-                for j in range(i,x.shape[1]):
-                    for k in range(j,x.shape[1]):
-                        temp_mat=np.hstack((temp_mat,np.multiply(x[:,i],x[:,j],x[:,k])))
-            return temp_mat
-        return transform
     
     def rbf(self, x, y):
-        return np.exp(-float(np.linalg.norm(x - y)) ** 2 / (2 * self.sigma ** 2))
+        return 
+        ##return np.exp(-float(np.linalg.norm(x - y)) ** 2 / (2 * self.sigma ** 2))
 
 #def line_search(f, gf, x, d, α):
 #    p=0.5
@@ -98,7 +90,7 @@ def golden_section_search(f, a, b, n=0.0001):
     return ((a+b)/2,NumberOfEvals ) if a < b else ((b+a)/2, NumberOfEvals)
 
 
-class SVM_SGD:
+class SVM_GD:
     def __init__(self,iterations):
         self.iterations=iterations
 
@@ -220,11 +212,20 @@ a=argmin(a)[primal problem(w+a*d)]
 w is then updated by: w+a*d.
 finally, after a sufficient number of update iterations, w is outputed to be the final answer of the primal problem.
 '''
+d= np.genfromtxt('linear_data.txt')#Name of the data file
+X,Y=d[:,:2],d[:,-1]
+
+svm_gd=SVM_GD(1000)#number of iterations to perform
+svm_gd.fit(X,Y,Kernel().linear())#apply a fit, under a kernel
+print("Error:",svm_gd.error(X,Y))#print the error
+svm_gd.plot()#plot the data and decision boundary
+
+
 
 d= np.genfromtxt('nonlinear_data.txt')#Name of the data file
 X,Y=d[:,:2],d[:,-1]
 
-svm_sgd=SVM_SGD(1000)#number of iterations to perform
-svm_sgd.fit(X,Y,Kernel().quadratic())#apply a fit, under a kernel
-print("Error:",svm_sgd.error(X,Y))#print the error
-svm_sgd.plot()#plot the data and decision boundary
+svm_gd=SVM_GD(1000)#number of iterations to perform
+svm_gd.fit(X,Y,Kernel().quadratic())#apply a fit, under a kernel
+print("Error:",svm_gd.error(X,Y))#print the error
+svm_gd.plot()#plot the data and decision boundary
