@@ -1,28 +1,29 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from cvxopt import matrix, solvers
-from sklearn.kernel_approximation import RBFSampler
+from sklearn.metrics.pairwise import rbf_kernel
 from sklearn.preprocessing import PolynomialFeatures
 
 
 
 class SVM_QP:
-    def __init__(self, kernel=None,n_samples=5,degree=2):
+    def __init__(self, kernel=None,gamma=None,degree=2):
         self.kernel = kernel
         if self.kernel == 'rbf':
-            self.n_samples=n_samples
+            self.gamma=gamma
         if self.kernel == 'poly':
             self.degree = degree
     
     def transform(self,x):
         if self.kernel == 'rbf':
-            x_feature = RBFSampler(n_components=self.n_samples).fit_transform(x)
+            x_feature = rbf_kernel(x,self.xtrain,gamma=self.gamma)
             x = np.concatenate((x,x_feature),axis = -1)
         elif self.kernel == 'poly':
             x = PolynomialFeatures(self.degree,include_bias=False).fit_transform(x)
         return x
 
     def fit(self,x,y,c=None):
+        self.xtrain = x
         x = self.transform(x)
         solvers.options['show_progress'] = False
         if c is None:
