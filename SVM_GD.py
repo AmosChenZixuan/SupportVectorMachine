@@ -3,16 +3,17 @@ import matplotlib.pyplot as plt
 from time import perf_counter as clock
 from math import log
 
+
+#Kernel
 class Kernel:
     def __init__(self):
         pass
-#        self.sigma = sigma
-#        self.dim = dim
-#        self.family = [self.linear, self.poly, self.rbf]
-    
+#linear, kernel is not used  
     def linear(self):
         return lambda x: x
     
+#transform the original features to second orders.
+#feature (A,B) would result in (A,B,AB,A^2,B^2)
     def quadratic(self):
         def transform(x):
             temp_mat=np.mat(x)
@@ -22,29 +23,8 @@ class Kernel:
             return temp_mat
         return transform
 
-    
-    def rbf(self, x, y):
-        return 
-        ##return np.exp(-float(np.linalg.norm(x - y)) ** 2 / (2 * self.sigma ** 2))
-
-#def line_search(f, gf, x, d, α):
-#    p=0.5
-#    β=0.0001
-#    y= f(x),
-#    g=gf(x)
-    #num_of_eval=1
-#    print(np.dot(g.T,d).shape)
-#    print(y)
-#    print(f(x + α*d))
-#    print()
-#    print(y[0]+β*α*np.dot(g.T,d)[0][0])
-
-#    while f(x + α*d)[0] > (y[0] + β*α*np.dot(g.T,d)[0][0]):
-#                α *= p
-#                num_of_eval+=1
-#    print("a=",α)
-#    return α
-
+ 
+#ordinary line search, used to find a desirable step size in the direction of descent
 def line_search(f, x, d):
     obj = lambda α: f(x + α*d)
     a, b, num_of_eval1 = bracket_minimum(obj)
@@ -89,11 +69,13 @@ def golden_section_search(f, a, b, n=0.0001):
             a, b = b, c
     return ((a+b)/2,NumberOfEvals ) if a < b else ((b+a)/2, NumberOfEvals)
 
+#########################################################################
 
 class SVM_GD:
     def __init__(self,iterations):
         self.iterations=iterations
 
+#returns the loss with respect to a weight
     def objective_function(self):
         def inner(w):
             temp=0
@@ -103,9 +85,12 @@ class SVM_GD:
                 temp += max(0,1-y.T*(np.dot(x,w)))
             return (1/5)*2*w.T*w+temp
         return inner
-#    def gradient(self):
-#        return lambda w: (2)*w - self.X.T*self.Y  if self.Y.T*(np.dot(self.X,w))<1 else (2)*w
-        
+    #def gradient(self):
+    #    return lambda w: (2)*w - self.X.T*self.Y  if self.Y.T*(np.dot(self.X,w))<1 else (2)*w
+
+
+
+#train the classifer with data
     def fit(self,X,Y,transform):
         self.X=np.mat(X, dtype='float64')
         self.transform=transform
@@ -145,28 +130,14 @@ class SVM_GD:
             self.w+=a*update
         print("Number of iterations:",iter_num)
 
-#        svm_iter_num=0
-#        for iters in range(1,self.iterations/2+1):
-##            svm_iter_num+=1
- #           sv_pos1=[]
-#           sv_neg1=[]
-#            min_distance=
-#            for i in range(len(self.X)):
-#                x=self.X[i]
-#                y=self.Y[i]
-#                d=abs(np.dot(x,self.w))
-                
-            
-#        print(self.X)
-#        print(self.w)
-#        print(np.hstack(((self.X*self.w),self.Y)))
-#        #print(self.error)
-#        print(self.Y)
+
+#predict unseen data, classifer must have been fitted beforehand.
     def predict(self,X):
         X =np.mat(X)
         X=np.hstack((self.transform(X), np.ones((X.shape[0],1)) ))
         return np.sign(np.dot(X,self.w))
-    
+
+#return the error of the classifer under training data.
     def error(self,X,Y):
         prediction=self.predict(X)
         e=0
@@ -174,7 +145,7 @@ class SVM_GD:
             if prediction[i] != Y[i]:
                 e+=1
         return e/len(X)
-    
+
     def plot(self):
         ax=plt.subplots(figsize= (10,6))[1]
         
