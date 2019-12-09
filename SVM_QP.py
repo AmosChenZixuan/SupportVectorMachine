@@ -24,6 +24,7 @@ class SVM_QP:
 
     def fit(self,x,y,c=None):
         x = self.transform(x)
+        solvers.options['show_progress'] = False
         if c is None:
             return self.fit_hard(x,y)
         else:
